@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BluetoothLowEnergyAndroidJavaCentral</string>
+    <string name="app_name">BleCentral07V2</string>
 
     <string name="service_name">Ble Service</string>
 
@@ -20,4 +20,7 @@
     <string name="property_write">Writable</string>
     <string name="property_notify">Notifiable</string>
     <string name="property_none">No Access</string>
+
+    <string name="read_button">Read</string>
+    <string name="response_label">Response</string>
 </resources>

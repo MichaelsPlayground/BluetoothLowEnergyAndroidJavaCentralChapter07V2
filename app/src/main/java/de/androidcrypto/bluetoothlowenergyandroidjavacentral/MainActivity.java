@@ -1,13 +1,5 @@
 package de.androidcrypto.bluetoothlowenergyandroidjavacentral;
 
-import static android.bluetooth.le.ScanCallback.SCAN_FAILED_ALREADY_STARTED;
-import static android.bluetooth.le.ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED;
-import static android.bluetooth.le.ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -26,6 +18,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+
 import java.util.List;
 
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.adapters.BlePeripheralsListAdapter;
@@ -34,15 +30,14 @@ import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.callbacks.BleSc
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.callbacks.BleScanCallbackv21;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.models.BlePeripheralListItem;
 
+
 /**
  * Scan for and list BLE Peripherals
  *
  * @author Tony Gaitatzis backupbrain@gmail.com
  * @date 2015-12-21
  */
-
 public class MainActivity extends AppCompatActivity {
-
     /** Constants **/
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
@@ -87,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(activity, BLE_PERMISSIONS, requestCode);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         loadUI();
         attachCallbacks();
     }
+
 
     @Override
     public void onResume() {
@@ -222,8 +217,7 @@ public class MainActivity extends AppCompatActivity {
         // should prompt user to open settings if Bluetooth is not enabled.
         if (!mBleCommManager.getBluetoothAdapter().isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent,
-                    REQUEST_ENABLE_BT);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
     }
@@ -239,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
         // clear the list of Peripherals and start scanning
         mBlePeripheralsListAdapter.clear();
+        mBlePeripheralsListAdapter.notifyDataSetChanged();
         try {
             mScanningActive = true;
             mBleCommManager.scanForPeripherals(mBleScanCallbackv18, mScanCallbackv21);
@@ -293,10 +288,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (addPeripheral) {
-            mBlePeripheralsListAdapter.addBluetoothPeripheral(bluetoothDevice, rssi);
+            //mBlePeripheralsListAdapter.addBluetoothPeripheral(bluetoothDevice, rssi);
+            //mBlePeripheralsListAdapter.notifyDataSetChanged();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mBlePeripheralsListAdapter.addBluetoothPeripheral(bluetoothDevice, rssi);
                     mBlePeripheralsListAdapter.notifyDataSetChanged();
                 }
             });
@@ -428,4 +425,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
+
 }

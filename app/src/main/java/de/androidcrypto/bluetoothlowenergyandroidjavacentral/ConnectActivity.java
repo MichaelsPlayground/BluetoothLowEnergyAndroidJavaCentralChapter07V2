@@ -7,10 +7,13 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+import android.content.Intent;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,17 +21,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.adapters.BleGattProfileListAdapter;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.BleCommManager;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.BlePeripheral;
 
-
 /**
- * Connect to a BLE Device, list its GATT services
+ * Connect to a BLE Peripherals, list its GATT services
  *
  * @author Tony Gaitatzis backupbrain@gmail.com
  * @date 2015-12-21
@@ -57,7 +57,6 @@ public class ConnectActivity extends AppCompatActivity {
     private TextView mPeripheralBroadcastNameTV, mPeripheralAddressTV, mGattProfileListEmptyTV;
     private BleGattProfileListAdapter mGattProfileListAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // grab information passed to the savedInstanceState,
@@ -79,10 +78,23 @@ public class ConnectActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadUI();
+        attachCallbacks();
+
 
         mBlePeripheral = new BlePeripheral();
+/*
+        mGattProfileListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+                System.out.println("mGattProfileListView.setOnChildClickListener");
+                System.out.println("onChildClick");
+                return false;
+            }
+        });
 
+ */
     }
+
 
     /**
      * Prepare the UI elements
@@ -95,27 +107,42 @@ public class ConnectActivity extends AppCompatActivity {
         mGattProfileListView = (ExpandableListView) findViewById(R.id.peripherals_list);
         mGattProfileListAdapter = new BleGattProfileListAdapter();
 
-
         mGattProfileListView.setAdapter(mGattProfileListAdapter);
         mGattProfileListView.setEmptyView(mGattProfileListEmptyTV);
     }
 
+    /**
+     * Attach callback handlers to UI elements
+     */
+    public void attachCallbacks() {
+        // When a user clicks on a GATT Service, drop down the GATT Characteristics belonging
+        // to thet Service.
+        // When a user clicks on a GATT Characteristic, open in TalkActivity
+        mGattProfileListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        // connect the bluetooth device
-        initializeBluetooth();
+                Log.v(TAG, "List View click: groupPosition: " + groupPosition + ", childPosition: " + childPosition);
+
+                BluetoothGattService service = mGattProfileListAdapter.getGroup(groupPosition).getService();
+                BluetoothGattCharacteristic characteristic = mGattProfileListAdapter.getChild(groupPosition, childPosition).getCharacteristic();
+
+                // start the Connect Activity and connect to this Bluetooth Peripheral
+                Intent intent = new Intent(getBaseContext(), TalkActivity.class);
+                intent.putExtra(TalkActivity.PERIPHERAL_NAME, mBlePeripheralName);
+                intent.putExtra(TalkActivity.PERIPHERAL_MAC_ADDRESS_KEY, mPeripheralMacAddress);
+                intent.putExtra(TalkActivity.CHARACTERISTIC_KEY, characteristic.getUuid().toString());
+                intent.putExtra(TalkActivity.SERVICE_KEY, service.getUuid().toString());
+
+                Log.v(TAG, "Setting intent: " + TalkActivity.CHARACTERISTIC_KEY + ": " + characteristic.getUuid().toString());
+                startActivity(intent);
+
+                return false;
+            }
+        });
 
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        disconnect();
-    }
-
 
     /**
      * Create the menu
@@ -219,6 +246,24 @@ public class ConnectActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * Bluetooth Peripheral GATT Profile being scanned.  Update UI
+     */
+    public void onBleServiceDiscoveryStarted() {
+        mProgressSpinner.setVisible(true);
+    }
+
+    /**
+     * Bluetooth Peripheral GATT Profile discovered.  Update UI
+     */
+    public void onBleServiceDiscoveryStopped() {
+        // update UI to reflect the GATT profile of the connected Perihperal
+        mProgressSpinner.setVisible(false);
+        mConnectItem.setVisible(false);
+        mDisconnectItem.setVisible(true);
+    }
+
     /**
      *  Quit the activity if the Peripheral is disconnected.  Otherwise disconnect and try again
      */
@@ -228,28 +273,6 @@ public class ConnectActivity extends AppCompatActivity {
         } else {
             disconnect();
         }
-    }
-
-
-    /**
-     * Bluetooth Peripheral GATT Profile being scanned.  Update UI
-     *
-     * New in this chapter
-     */
-    public void onBleServiceDiscoveryStarted() {
-        mProgressSpinner.setVisible(true);
-    }
-
-    /**
-     * Bluetooth Peripheral GATT Profile discovered.  Update UI
-     *
-     * New in this chapter
-     */
-    public void onBleServiceDiscoveryStopped() {
-        // update UI to reflect the GATT profile of the connected Perihperal
-        mProgressSpinner.setVisible(false);
-        mConnectItem.setVisible(false);
-        mDisconnectItem.setVisible(true);
     }
 
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -293,8 +316,6 @@ public class ConnectActivity extends AppCompatActivity {
 
         /**
          * Gatt Profile discovered
-         *
-         * New in this chapter
          */
         @Override
         public void onServicesDiscovered(BluetoothGatt bluetoothGatt, int status) {
@@ -307,11 +328,13 @@ public class ConnectActivity extends AppCompatActivity {
                         Log.v(TAG, "Service uuid: " + service.getUuid());
 
                         // add the gatt service to our list
-                        mGattProfileListAdapter.addService(service);
+
+                        //mGattProfileListAdapter.notifyDataSetChanged();
                         // update the UI to reflect the new Service
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                mGattProfileListAdapter.addService(service);
                                 mGattProfileListAdapter.notifyDataSetChanged();
                             }
                         });
@@ -322,11 +345,17 @@ public class ConnectActivity extends AppCompatActivity {
                             if (characteristic != null) {
                                 // if there are Characteristics, add them to the Service's list
                                 try {
-                                    mGattProfileListAdapter.addCharacteristic(service, characteristic);
+                                    //mGattProfileListAdapter.addCharacteristic(service, characteristic);
+                                    //mGattProfileListAdapter.notifyDataSetChanged();
                                     // update the ListView UI
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
+                                            try {
+                                                mGattProfileListAdapter.addCharacteristic(service, characteristic);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             mGattProfileListAdapter.notifyDataSetChanged();
                                         }
                                     });
@@ -352,7 +381,10 @@ public class ConnectActivity extends AppCompatActivity {
                     onBleServiceDiscoveryStopped();
                 }
             });
+
         }
     };
+
+
 
 }

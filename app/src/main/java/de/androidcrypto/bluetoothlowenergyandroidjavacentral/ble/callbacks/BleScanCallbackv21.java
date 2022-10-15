@@ -5,6 +5,7 @@ import android.bluetooth.le.ScanResult;
 
 import java.util.List;
 
+
 /**
  * BleScanCallbackv18 has callbacks to support not only onLeScan when a new Peripheral is found,
  * but also onScanComplete when BLE scanning has stopped

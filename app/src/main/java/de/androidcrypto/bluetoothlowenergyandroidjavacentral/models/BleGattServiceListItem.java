@@ -1,6 +1,5 @@
 package de.androidcrypto.bluetoothlowenergyandroidjavacentral.models;
 
-
 import android.bluetooth.BluetoothGattService;
 
 import java.util.UUID;
@@ -8,8 +7,6 @@ import java.util.UUID;
 /**
  * A visual representation of the services available on a connected BLE device
  * This is paired with a list_item_service.xml that lists the services found by the BLECommManager
- *
- * New in this chapter
  *
  * @author Tony Gaitatzis backupbrain@gmail.com
  * @date 2015-12-21

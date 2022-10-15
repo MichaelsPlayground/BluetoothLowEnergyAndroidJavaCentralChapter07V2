@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.callbacks.BleScanCallbackv18;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble.callbacks.BleScanCallbackv21;
 
+
 /**
  * This class helps us manage Bluetooth Low Energy scanning functions.
  *
@@ -137,6 +138,7 @@ public class BleCommManager {
 
     }
 
+
     /**
      * Stop Scanning
      *
@@ -152,6 +154,7 @@ public class BleCommManager {
             mBluetoothAdapter.stopLeScan(bleScanCallbackv18);
             bleScanCallbackv18.onScanComplete();
         } else {
+            // mBluetoothLeScanner.stopScan(bleScanCallbackv21);
             if (mBluetoothLeScanner != null) {
                 mBluetoothLeScanner.stopScan(bleScanCallbackv21);
             }

@@ -1,5 +1,6 @@
 package de.androidcrypto.bluetoothlowenergyandroidjavacentral.ble;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -37,6 +38,7 @@ public class BlePeripheral {
      * @return a connection to the BluetoothGatt
      * @throws Exception if no device is given
      */
+    @SuppressLint("MissingPermission")
     public BluetoothGatt connect(BluetoothDevice bluetoothDevice, BluetoothGattCallback callback, final Context context) throws Exception {
         if (bluetoothDevice == null) {
             throw new Exception("No bluetooth device provided");
@@ -50,6 +52,7 @@ public class BlePeripheral {
     /**
      * Disconnect from a Peripheral
      */
+    @SuppressLint("MissingPermission")
     public void disconnect() {
         if (mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
@@ -61,6 +64,7 @@ public class BlePeripheral {
      * Be sure to use the BluetoothGattCallback.onConnectionStateChanged event
      * to notify of a successful disconnect
      */
+    @SuppressLint("MissingPermission")
     public void close() {
         if (mBluetoothGatt != null) {
             mBluetoothGatt.close(); // close connection to Peripheral
@@ -80,8 +84,6 @@ public class BlePeripheral {
     /**
      * Clear the GATT Service cache.
      *
-     * New in this chapter
-     *
      * @return <b>true</b> if the device cache clears successfully
      * @throws Exception
      */
@@ -96,10 +98,28 @@ public class BlePeripheral {
 
 
     /**
-     * Check if a Characetristic supports write permissions
+     * Request a data/value read from a Ble Characteristic
      *
      * New in this chapter
      *
+     * @param characteristic
+     */
+    @SuppressLint("MissingPermission")
+    public void readValueFromCharacteristic(final BluetoothGattCharacteristic characteristic) {
+        // Reading a characteristic requires both requesting the read and handling the callback that is
+        // sent when the read is successful
+        // http://stackoverflow.com/a/20020279
+        System.out.println("*** BlePeriphal readValueFromCharacteristic");
+        System.out.println("characteristic: " + characteristic.getUuid());
+        //mBluetoothGatt.readCharacteristic(characteristic);
+        boolean success = mBluetoothGatt.readCharacteristic(characteristic);
+        System.out.println("** success ?: " + success);
+        System.out.println("** mBluetoothGatt.readCharacteristic(characteristic); ** done");
+    }
+
+
+    /**
+     * Check if a Characetristic supports write permissions
      * @return Returns <b>true</b> if property is writable
      */
     public static boolean isCharacteristicWritable(BluetoothGattCharacteristic characteristic) {
@@ -109,8 +129,6 @@ public class BlePeripheral {
     /**
      * Check if a Characetristic has read permissions
      *
-     *
-     * New in this chapter
      * @return Returns <b>true</b> if property is Readable
      */
     public static boolean isCharacteristicReadable(BluetoothGattCharacteristic characteristic) {
@@ -120,16 +138,10 @@ public class BlePeripheral {
     /**
      * Check if a Characteristic supports Notifications
      *
-     * New in this chapter
-     *
      * @return Returns <b>true</b> if property is supports notification
      */
     public static boolean isCharacteristicNotifiable(BluetoothGattCharacteristic characteristic) {
         return (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0;
     }
-
-
-
-
 
 }

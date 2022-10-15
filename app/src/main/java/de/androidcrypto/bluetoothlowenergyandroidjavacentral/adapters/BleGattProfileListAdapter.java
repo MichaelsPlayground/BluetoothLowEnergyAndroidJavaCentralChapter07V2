@@ -22,8 +22,6 @@ import de.androidcrypto.bluetoothlowenergyandroidjavacentral.models.BleGattServi
  * Manages the BleGattServiceListItem so that we can populate the GATT Profile List
  * Uses a BaseExpandableListAdapter to create a tree-like structure
  *
- * New in this chapter
- *
  * @author Tony Gaitatzis backupbrain@gmail.com
  * @date 2015-12-21
  */
@@ -69,6 +67,8 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
         BleGattServiceListItem serviceListItem = new BleGattServiceListItem(service, serviceItemID);
         mBleGattServiceListItems.add(serviceListItem);
         mBleCharacteristicListItems.put(serviceItemID, new ArrayList<BleGattCharacteristicListItem>());
+        // todo new
+        //notifyDataSetChanged();
     }
 
     /**
@@ -96,11 +96,14 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
         // add characterstic to the end of the sub-list for the parent service
         if (!mBleCharacteristicListItems.containsKey(serviceItemId)) {
             mBleCharacteristicListItems.put(serviceItemId, new ArrayList<BleGattCharacteristicListItem>());
+            notifyDataSetChanged();
         }
 
         int characteristicItemId = mBleCharacteristicListItems.size();
         BleGattCharacteristicListItem characteristicListItem = new BleGattCharacteristicListItem(characteristic, characteristicItemId);
         mBleCharacteristicListItems.get(serviceItemId).add(characteristicListItem);
+        // todo new
+        //notifyDataSetChanged();
     }
 
     /**
@@ -109,6 +112,7 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
     public void clear() {
         mBleGattServiceListItems.clear();
         mBleCharacteristicListItems.clear();
+        notifyDataSetChanged();
     }
 
     /**
@@ -155,9 +159,8 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
             serviceListItemView = new GroupViewHolder();
             serviceListItemView.mUuidTV = (TextView) v.findViewById(R.id.uuid);
             serviceListItemView.mServiceTypeTV = (TextView) v.findViewById(R.id.service_type);
-
-
             v.setTag( serviceListItemView );
+            notifyDataSetChanged();
         } else {
             serviceListItemView = (GroupViewHolder) v.getTag();
         }
@@ -166,18 +169,24 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
         // otherwise, display a ListItem with Bluetooth Service information
         if (getGroupCount() <= 0) {
             serviceListItemView.mUuidTV.setText(R.string.peripheral_list_empty);
+            notifyDataSetChanged();
         } else {
             BleGattServiceListItem item = getGroup(position);
 
             serviceListItemView.mUuidTV.setText(item.getUuid().toString());
+            notifyDataSetChanged();
             int type = item.getType();
             // Is this a primary or secondary service
             if (type == BluetoothGattService.SERVICE_TYPE_PRIMARY) {
                 serviceListItemView.mServiceTypeTV.setText(R.string.service_type_primary);
+                notifyDataSetChanged();
             } else {
                 serviceListItemView.mServiceTypeTV.setText(R.string.service_type_secondary);
+                notifyDataSetChanged();
             }
         }
+        // todo new
+        notifyDataSetChanged();
         return v;
     }
 
@@ -284,43 +293,50 @@ public class BleGattProfileListAdapter extends BaseExpandableListAdapter {
             characteristicListItemView.mPropertyWritableTV = (TextView)v.findViewById(R.id.property_write);
             characteristicListItemView.mPropertyNotifiableTV = (TextView)v.findViewById(R.id.property_notify);
             characteristicListItemView.mPropertyNoneTV = (TextView)v.findViewById(R.id.property_none);
-
+            notifyDataSetChanged();
         } else {
             characteristicListItemView = (ChildViewHolder) v.getTag();
         }
 
         if (characteristicListItemView != null) {
-
             // display the UUID of the characteristic
             characteristicListItemView.mUuidTV.setText(characteristic.getUuid().toString());
-
+            notifyDataSetChanged();
             // Display the read/write/notify attributes of the Characteristic
             if (BlePeripheral.isCharacteristicReadable(characteristic)) {
                 characteristicListItemView.mPropertyReadableTV.setVisibility(View.VISIBLE);
+                notifyDataSetChanged();
             } else {
                 characteristicListItemView.mPropertyReadableTV.setVisibility(View.GONE);
+                notifyDataSetChanged();
             }
             if (BlePeripheral.isCharacteristicWritable(characteristic)) {
                 characteristicListItemView.mPropertyWritableTV.setVisibility(View.VISIBLE);
+                notifyDataSetChanged();
             } else {
                 characteristicListItemView.mPropertyWritableTV.setVisibility(View.GONE);
+                notifyDataSetChanged();
             }
             if (BlePeripheral.isCharacteristicNotifiable(characteristic)) {
                 characteristicListItemView.mPropertyNotifiableTV.setVisibility(View.VISIBLE);
+                notifyDataSetChanged();
             } else {
                 characteristicListItemView.mPropertyNotifiableTV.setVisibility(View.GONE);
+                notifyDataSetChanged();
             }
             if (!BlePeripheral.isCharacteristicNotifiable(characteristic) &&
                     !BlePeripheral.isCharacteristicWritable(characteristic) &&
                     !BlePeripheral.isCharacteristicReadable(characteristic)) {
                 characteristicListItemView.mPropertyNoneTV.setVisibility(View.VISIBLE);
+                notifyDataSetChanged();
             } else {
                 characteristicListItemView.mPropertyNoneTV.setVisibility(View.GONE);
-
+                notifyDataSetChanged();
             }
+            notifyDataSetChanged();
         }
-
-
+        // todo this is new
+        notifyDataSetChanged();
         return v;
     }
 

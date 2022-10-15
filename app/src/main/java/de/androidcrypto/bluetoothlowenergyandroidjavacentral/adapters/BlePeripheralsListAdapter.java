@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.R;
 import de.androidcrypto.bluetoothlowenergyandroidjavacentral.models.BlePeripheralListItem;
 
+
 /**
  * Manages the BLEDeviceListItems so that we can populate the list
  *
@@ -43,6 +44,8 @@ public class BlePeripheralsListAdapter extends BaseAdapter {
      */
     public void addBluetoothPeripheral(BluetoothDevice bluetoothDevice, int rssi) {
         // update UI stuff
+        //System.out.println("BlePeripheralsListAdapter");
+        System.out.println("BlePeripheralsListAdapter addBluetoothPeripheral");
         int listItemId = mBluetoothPeripheralListItems.size();
         BlePeripheralListItem listItem = new BlePeripheralListItem(bluetoothDevice);
         listItem.setItemId(listItemId);
@@ -50,6 +53,8 @@ public class BlePeripheralsListAdapter extends BaseAdapter {
 
         // add to list
         mBluetoothPeripheralListItems.add(listItem);
+        // todo new
+        notifyDataSetChanged();
     }
 
     /**
@@ -102,6 +107,7 @@ public class BlePeripheralsListAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        System.out.println("BlePeripheralsListAdapter getView");
         View v = convertView;
         ViewHolder peripheralListItemView;
 
@@ -117,23 +123,31 @@ public class BlePeripheralsListAdapter extends BaseAdapter {
             peripheralListItemView.mBroadcastNameTV = (TextView) v.findViewById(R.id.broadcast_name);
             peripheralListItemView.mMacAddressTV = (TextView) v.findViewById(R.id.mac_address);
             peripheralListItemView.mRssiTV = (TextView) v.findViewById(R.id.power_level);
-
+            System.out.println("BlePeripheralsListAdapter getView setTag");
             v.setTag( peripheralListItemView );
+            notifyDataSetChanged();
         } else {
+            System.out.println("BlePeripheralsListAdapter getView getTag");
             peripheralListItemView = (ViewHolder) v.getTag();
         }
         Log.v(TAG, "ListItem size: "+ mBluetoothPeripheralListItems.size());
         // if there are known Peripherals, create a ListItem that says so
         // otherwise, display a ListItem with Bluetooth Periheral information
         if (mBluetoothPeripheralListItems.size() <= 0) {
+            System.out.println("BlePeripheralsListAdapter getView mBluetoothPeripheralListItems.size() <= 0");
             peripheralListItemView.mBroadcastNameTV.setText(R.string.peripheral_list_empty);
+            notifyDataSetChanged();
         } else {
+            System.out.println("BlePeripheralsListAdapter getView mBluetoothPeripheralListItems.size() > 0");
             BlePeripheralListItem item = mBluetoothPeripheralListItems.get(position);
 
             peripheralListItemView.mBroadcastNameTV.setText(item.getBroadcastName());
             peripheralListItemView.mMacAddressTV.setText(item.getMacAddress());
             peripheralListItemView.mRssiTV.setText(String.valueOf(item.getRssi()));
+            notifyDataSetChanged();
         }
+        // todo new
+        notifyDataSetChanged();
         return v;
     }
 
